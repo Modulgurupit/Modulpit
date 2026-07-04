@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepLearning ModulPIT</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- html2pdf.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Standar Ukuran Kertas F4 (Folio) - 21.59 cm x 33.02 cm */
+        .print-page {
+            width: 21.59cm !important;
+            height: 33.02cm !important;
+            box-sizing: border-box;
+            background-color: white !important;
+            color: #020617 !important; /* Force ultra dark text */
+            padding: 1.5cm !important; /* Margin dokumen F4 standar dan presisi */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Desain Scrollbar Modern Soft */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Pemisah Halaman Global yang Terdeteksi oleh html2pdf & Print */
+        .page-break {
+            page-break-before: always !important;
+            break-before: page !important;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-page {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 1.5cm !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            body {
+                background-color: white !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50/60 text-slate-900 min-h-screen antialiased">
+
+    <!-- NOTIFIKASI TOAST -->
+    <div id="toast" class="fixed top-5 right-5 z-[200] transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-emerald-400" id="toastIcon"></i>
+        <span id="toastText">Notifikasi</span>
+    </div>
+
+    <!-- LANDING SCREEN / DASHBOARD UTAMA -->
+    <div id="landingScreen" class="min-h-screen flex flex-col justify-between p-6 bg-gradient-to-b from-slate-50 via-emerald-50/40 to-emerald-100/30">
+        <div class="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full text-center space-y-8 my-8">
+            
+            <!-- Foto Pengguna "Full Senyum" Bergerak Memantul - Diubah Menjadi Bulatan Bola Sempurna -->
+            <div class="relative group">
+                <div class="absolute -inset-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-full blur opacity-30 group-hover:opacity-55 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative animate-bounce duration-1000">
+                    <img src="Full Senyum.jpg" alt="Piter Pamuttu" class="w-40 h-40 object-cover rounded-full shadow-2xl border-4 border-emerald-600 bg-emerald-50" onerror="this.src='https://placehold.co/160x160/047857/ffffff?text=Piter+Pamuttu'">
+                </div>
+            </div>
+
+            <!-- Judul & Sub-judul Aplikasi Kontras Tinggi -->
+            <div class="space-y-3">
+                <span class="px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-emerald-900 bg-emerald-200/70 border border-emerald-300 rounded-full inline-block">Versi F4 Folio Stabil</span>
+                <h1 class="text-4xl md:text-5xl font-black text-slate-950 tracking-tight">
+                    DeepLearning <span class="text-emerald-700">ModulPIT</span>
+                </h1>
+                <p class="text-sm md:text-base text-slate-900 font-extrabold max-w-2xl mx-auto">
+                    Aplikasi Penyusunan Modul Ajar Digital Berbasis Karakter & Diferensiasi Secara Dinamis dan Presisi.
+                </p>
+            </div>
+
+            <!-- Kartu Seleksi Tipe Modul (Awal vs Lanjutan) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl pt-4">
+                <!-- Modul Awal Card -->
+                <button onclick="startApp('awal')" class="group text-left p-6 bg-white rounded-2xl border-2 border-slate-200 hover:border-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3.5 bg-emerald-100 text-emerald-800 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-950 mb-1">Modul Ajar - Awal</h3>
+                            <p class="text-xs text-slate-900 font-bold leading-relaxed mb-4">Materi pembuka pertemuan pertama. Memuat informasi profil sekolah, penyusun, serta materi pokok utama secara komprehensif.</p>
+                            <span class="text-xs font-extrabold text-emerald-800 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                Buat Dokumen Baru <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </span>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Modul Lanjutan Card -->
+                <button onclick="startApp('lanjutan')" class="group text-left p-6 bg-white rounded-2xl border-2 border-slate-200 hover:border-emerald-600 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3.5 bg-teal-100 text-teal-800 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <i data-lucide="layers" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-950 mb-1">Modul Ajar - Lanjutan</h3>
+                            <p class="text-xs text-slate-900 font-bold leading-relaxed mb-4">Pertemuan ke-2, ke-3, dst. Format ringkas yang berfokus langsung pada rincian langkah pembelajaran dan aktivitas diferensiasi lanjutan.</p>
+                            <span class="text-xs font-extrabold text-teal-800 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                Buat Dokumen Baru <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </span>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <footer class="text-center text-xs text-slate-800 font-bold py-4 border-t border-slate-200/50">
+            &copy; 2026 DeepLearning ModulPIT. Seluruh Hak Cipta Dilindungi.
+        </footer>
+    </div>
+
+    <!-- WORKSPACE UTAMA -->
+    <div id="mainWorkspace" class="hidden min-h-screen flex flex-col">
+        <!-- HEADER / NAVIGATION (Emerald Green Theme) -->
+        <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md no-print sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col xl:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <button onclick="goBackToLanding()" class="bg-white/10 p-2 rounded-xl border border-white/10 hover:bg-white/20 transition-all text-white">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-lg font-extrabold tracking-tight">DeepLearning <span class="text-emerald-200" id="headerAppTitle">ModulPIT</span></h1>
+                        <p class="text-[10px] text-emerald-100/90 font-medium" id="headerAppSubtitle">Mode Pengisian Modul Ajar</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="loadSampleData()" class="flex items-center gap-2 bg-emerald-500/40 hover:bg-emerald-500/60 border border-emerald-400/30 text-white font-bold px-3.5 py-2 rounded-xl transition-all text-xs">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-200"></i>
+                        Gunakan RPP Contoh
+                    </button>
+                    <button onclick="clearForm()" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-200 px-3 py-2 rounded-xl transition-all text-xs">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        Reset
+                    </button>
+                    <div class="h-6 w-[1px] bg-white/20 mx-1 hidden sm:block"></div>
+                    <button onclick="downloadWord()" class="flex items-center gap-2 bg-white text-slate-900 hover:bg-slate-100 font-bold px-4 py-2 rounded-xl transition-all text-xs shadow-sm">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-600"></i>
+                        Ekspor Word (F4)
+                    </button>
+                    <button onclick="downloadPDF()" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl transition-all text-xs shadow-sm">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        Unduh PDF (F4)
+                    </button>
+                    <button onclick="window.print()" class="flex items-center gap-2 bg-slate-950 hover:bg-slate-900 text-white font-bold px-3.5 py-2 rounded-xl transition-all text-xs shadow-sm">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                        Cetak
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- AREA KERJA UTAMA -->
+        <main class="flex-1 max-w-7xl mx-auto px-4 py-6 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- SISI FORM INPUT (KIRI) -->
+                <section class="lg:col-span-5 space-y-5 no-print">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5 max-h-[82vh] overflow-y-auto sticky top-20">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="sliders" class="text-emerald-600 w-4 h-4"></i>
+                                Input Parameter Modul
+                            </h2>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-900 font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">Live Sync</span>
+                        </div>
+
+                        <!-- 1. INFORMASI UMUM -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">1. Informasi Umum</h3>
+                                <div class="flex gap-1.5">
+                                    <button onclick="saveProfile()" class="text-[10px] font-extrabold bg-emerald-50 hover:bg-emerald-100 text-emerald-950 px-2 py-1 rounded-md border border-emerald-200 transition-all flex items-center gap-1">
+                                        <i data-lucide="save" class="w-3 h-3 text-emerald-700"></i> Simpan Profil
+                                    </button>
+                                    <button onclick="loadProfile()" class="text-[10px] font-extrabold bg-slate-100 hover:bg-slate-200 text-slate-900 px-2 py-1 rounded-md transition-all flex items-center gap-1">
+                                        <i data-lucide="folder-open" class="w-3 h-3 text-slate-600"></i> Muat
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Mata Pelajaran</label>
+                                    <input type="text" id="mataPelajaran" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Contoh: Biologi">
+                                    <div class="grid grid-cols-4 gap-1 mt-1.5">
+                                        <button onclick="setMapel('Sejarah')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Sejarah</button>
+                                        <button onclick="setMapel('Biologi')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Biologi</button>
+                                        <button onclick="setMapel('Ekonomi')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Ekonomi</button>
+                                        <button onclick="setMapel('Matematika')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Matem.</button>
+                                        <button onclick="setMapel('Sosiologi')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Sosiologi</button>
+                                        <button onclick="setMapel('Fisika')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Fisika</button>
+                                        <button onclick="setMapel('Agama')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Agama</button>
+                                        <button onclick="setMapel('Geografi')" class="py-1 text-[9px] font-bold bg-slate-50 border border-slate-200 rounded text-slate-800 hover:bg-emerald-50 hover:text-emerald-950">Geografi</button>
+                                    </div>
+                                </div>
+                                <div id="formGroupAwalOnly" class="space-y-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-800 mb-1">Nama Sekolah</label>
+                                        <input type="text" id="namaSekolah" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-800 mb-1">Nama Penyusun / Guru</label>
+                                        <input type="text" id="namaPenyusun" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-800 mb-1">Tahun Pelajaran</label>
+                                        <input type="text" id="tahunPelajaran" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500" value="2025/2026">
+                                    </div>
+                                </div>
+
+                                <!-- FASE, KELAS & SEMESTER -->
+                                <div class="bg-slate-50/80 p-3 rounded-xl border border-slate-100 space-y-2">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-800 mb-1">Fase / Kelas / Smt</label>
+                                        <input type="text" id="faseKelas" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-xs outline-none" placeholder="Klik tombol di bawah">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <div class="flex gap-1">
+                                            <button onclick="setFase('Fase E / Kelas X')" class="flex-1 py-1 px-2 text-[10px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-950 rounded-md border border-emerald-200">Fase E (X)</button>
+                                            <button onclick="setFase('Fase F / Kelas XI/XII')" class="flex-1 py-1 px-2 text-[10px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-950 rounded-md border border-emerald-200">Fase F (XI/XII)</button>
+                                        </div>
+                                        <div class="flex gap-1">
+                                            <button onclick="setSemester('Semester Ganjil')" class="flex-1 py-1 px-2 text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-md">Smt Ganjil</button>
+                                            <button onclick="setSemester('Semester Genap')" class="flex-1 py-1 px-2 text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-md">Smt Genap</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="formGroupAwalOnlyMateri">
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Materi Pokok Utama</label>
+                                    <input type="text" id="materi" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500" placeholder="Topik Bahasan Utama">
+                                </div>
+
+                                <!-- JP & PERTEMUAN SINKRON -->
+                                <div class="grid grid-cols-1 gap-3 bg-emerald-50/40 p-3 rounded-xl border border-emerald-200/50">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-800 mb-1">Jumlah Pertemuan</label>
+                                            <input type="number" id="jumlahPertemuan" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-xs outline-none" min="1" max="8">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-slate-800 mb-1">Alokasi Waktu Sesi</label>
+                                            <input type="text" id="alokasiWaktuSesi" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-xs outline-none">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-emerald-950 mb-1">Pilih Jumlah Pertemuan (Maks 8):</label>
+                                        <div class="grid grid-cols-4 gap-1">
+                                            <button onclick="setPertemuan(1)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">1 Pert.</button>
+                                            <button onclick="setPertemuan(2)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">2 Pert.</button>
+                                            <button onclick="setPertemuan(3)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">3 Pert.</button>
+                                            <button onclick="setPertemuan(4)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">4 Pert.</button>
+                                            <button onclick="setPertemuan(5)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">5 Pert.</button>
+                                            <button onclick="setPertemuan(6)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">6 Pert.</button>
+                                            <button onclick="setPertemuan(7)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">7 Pert.</button>
+                                            <button onclick="setPertemuan(8)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">8 Pert.</button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-emerald-950 mb-1">Pilih Alokasi Sesi Per Pertemuan (Maks 6 JP):</label>
+                                        <div class="grid grid-cols-3 gap-1">
+                                            <button onclick="setJPSesi(1)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">1 JP</button>
+                                            <button onclick="setJPSesi(2)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">2 JP</button>
+                                            <button onclick="setJPSesi(3)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">3 JP</button>
+                                            <button onclick="setJPSesi(4)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">4 JP</button>
+                                            <button onclick="setJPSesi(5)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">5 JP</button>
+                                            <button onclick="setJPSesi(6)" class="py-1 text-[10px] font-bold bg-white hover:bg-emerald-50 border border-slate-200 rounded-md text-slate-900">6 JP</button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Alokasi Waktu Total (Kalkulasi Otomatis)</label>
+                                        <input type="text" id="alokasiWaktu" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl bg-slate-100 text-xs text-slate-950 font-black outline-none" placeholder="Hasil perkalian JP x Pertemuan..." readonly>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 border-t border-emerald-100/40 pt-2">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-800 mb-0.5">Pertemuan Sesi Ini Ke-</label>
+                                            <input type="number" id="pertemuanKe" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs" value="1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. KOMPONEN PENDUKUNG -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">2. Komponen Pendukung</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Model Pembelajaran</label>
+                                    <input type="text" id="modelPembelajaran" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Pilih klik opsi di bawah...">
+                                    <div class="flex flex-wrap gap-1 mt-1.5">
+                                        <button onclick="setModel('Problem-Based Learning (PBL)')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">PBL</button>
+                                        <button onclick="setModel('Project-Based Learning (PjBL)')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">PjBL</button>
+                                        <button onclick="setModel('Cooperative Learning')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">Cooperative</button>
+                                        <button onclick="setModel('Inquiry/Discovery Learning')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">Inquiry/Discovery</button>
+                                        <button onclick="setModel('Contextual Teaching and Learning (CTL)')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">CTL</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Metode Pembelajaran (Multi-pilih)</label>
+                                    <input type="text" id="metodePembelajaran" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Pilih beberapa metode...">
+                                    <div class="flex flex-wrap gap-1 mt-1.5">
+                                        <button onclick="appendMetode('Diskusi Kelompok')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">+ Diskusi</button>
+                                        <button onclick="appendMetode('Eksplorasi Lapangan')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">+ Lapangan</button>
+                                        <button onclick="appendMetode('Wawancara')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">+ Wawancara</button>
+                                        <button onclick="appendMetode('Presentasi')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">+ Presentasi</button>
+                                        <button onclick="appendMetode('Proyek')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">+ Proyek</button>
+                                        <button onclick="appendMetode('Drama')" class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-800 border border-slate-200 rounded-md">+ Drama</button>
+                                        <button onclick="clearMetode()" class="px-2 py-0.5 text-[10px] font-black bg-rose-100 text-rose-900 border border-rose-300 rounded-md">Clear</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Sumber Belajar</label>
+                                    <textarea id="sumberBelajar" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Media Pembelajaran</label>
+                                    <textarea id="mediaPembelajaran" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. KOMPONEN INTI (IDENTIFIKASI) -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">3. Komponen Inti (Identifikasi)</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Identifikasi Peserta Didik</label>
+                                    <textarea id="identifikasiPesertaDidik" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Identifikasi Materi Pelajaran</label>
+                                    <textarea id="identifikasiMateri" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Dimensi Profil Lulusan (Auto-Sync)</label>
+                                    <div class="grid grid-cols-2 gap-1.5 mt-1 text-[11px]">
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Keimanan dan ketakwaan kepada Tuhan yang Maha Esa"> Iman & Takwa</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Penalaran kritis"> Penalaran Kritis</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Kemandirian"> Kemandirian</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Kesehatan"> Kesehatan</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Komunikasi"> Komunikasi</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Kewargaan (Lokal, Nasional, Global)"> Kewargaan</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Kreativitas"> Kreativitas</label>
+                                        <label class="flex items-center gap-1.5 font-bold"><input type="checkbox" name="profilLulusan" value="Kolaborasi (Peduli, Berbagi, Kerjasama)"> Kolaborasi</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. DESAIN PEMBELAJARAN -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">4. Desain Pembelajaran</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Capaian Pembelajaran (CP)</label>
+                                    <textarea id="capaianPembelajaran" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Disiplin Ilmu yang Relevan</label>
+                                    <input type="text" id="disiplinIlmu" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Topik Pembelajaran</label>
+                                    <input type="text" id="topikPembelajaran" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Tujuan Pembelajaran (TP)</label>
+                                    <textarea id="tujuanPembelajaran" rows="3" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs" placeholder="Gunakan KKO, pisah tiap baris baru"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Kemitraan Pembelajaran (Opsional)</label>
+                                    <textarea id="kemitraan" rows="1.5" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Lingkungan Pembelajaran</label>
+                                    <textarea id="lingkungan" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-1">Pemanfaatan Digital</label>
+                                    <textarea id="digital" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. SISIPAN KARAKTER & DIFERENSIASI -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">5. Sisipan Karakter & Diferensiasi</h3>
+                                <button onclick="toggleBestModal()" class="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] font-black px-2.5 py-1 rounded-lg transition-all shadow-sm">
+                                    <i data-lucide="database" class="w-3 h-3"></i>
+                                    Database BEST
+                                </button>
+                            </div>
+                            
+                            <div class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-200/60 space-y-2.5">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-800">Profil BEST</label>
+                                        <input type="text" id="bevansProfil" class="w-full px-2 py-1 text-xs border border-slate-200 rounded bg-white font-bold" readonly placeholder="Klik Database BEST">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-800">Nilai PKBN2K</label>
+                                        <input type="text" id="bevansDpl" class="w-full px-2 py-1 text-xs border border-slate-200 rounded bg-white font-bold" readonly>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-800">Indikator Karakter</label>
+                                    <textarea id="bevansIndikator" rows="2" class="w-full px-2 py-1 text-xs border border-slate-200 rounded bg-white text-slate-900" placeholder="Otomatis sinkron..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-emerald-950">Referensi Alkitab</label>
+                                    <input type="text" id="bevansAlkitab" class="w-full px-2 py-1 text-xs border border-emerald-300 rounded bg-emerald-50 text-emerald-950 font-black" placeholder="Ayat alkitab penguat nilai">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2.5 pt-1">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Diferensiasi Konten</label>
+                                    <textarea id="difKonten" rows="1.5" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Diferensiasi Proses</label>
+                                    <textarea id="difProses" rows="1.5" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Diferensiasi Produk</label>
+                                    <textarea id="difProduk" rows="1.5" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. LANGKAH PEMBELAJARAN (DEEP LEARNING) -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">6. Langkah Pembelajaran</h3>
+                                <span class="text-[10px] text-emerald-900 font-extrabold bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">Deep Learning Model</span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs font-bold text-slate-800">A. Tahap Awal</label>
+                                        <input type="text" id="prinsipAwal" class="px-2 py-0.5 text-[10px] border border-slate-200 rounded bg-slate-50 text-slate-900 font-bold w-44" value="Berkesadaran, Bermakna">
+                                    </div>
+                                    <textarea id="langkahAwal" rows="3" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                                </div>
+                                
+                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60 space-y-3">
+                                    <span class="text-[11px] font-bold text-slate-900 block border-b pb-1">B. Tahap Inti (Siklus Mendalam)</span>
+                                    
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <label class="block text-[11px] font-bold text-slate-800">1. Memahami (Understand)</label>
+                                            <input type="text" id="prinsipMemahami" class="px-2 py-0.5 text-[9px] border rounded bg-white text-slate-900 font-bold" value="Bermakna, Menggembirakan">
+                                        </div>
+                                        <textarea id="langkahMemahami" rows="2.5" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <label class="block text-[11px] font-bold text-slate-800">2. Mengaplikasi (Apply)</label>
+                                            <input type="text" id="prinsipMengaplikasi" class="px-2 py-0.5 text-[9px] border rounded bg-white text-slate-900 font-bold" value="Bermakna, Kontekstual">
+                                        </div>
+                                        <textarea id="langkahMengaplikasi" rows="2.5" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <label class="block text-[11px] font-bold text-slate-800">3. Merefleksi (Reflect)</label>
+                                            <input type="text" id="prinsipMerefleksi" class="px-2 py-0.5 text-[9px] border rounded bg-white text-slate-900 font-bold" value="Berkesadaran, Bermakna">
+                                        </div>
+                                        <textarea id="langkahMerefleksi" rows="2.5" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="block text-xs font-bold text-slate-800">C. Tahap Penutup</label>
+                                        <input type="text" id="prinsipPenutup" class="px-2 py-0.5 text-[10px] border border-slate-200 rounded bg-slate-50 text-slate-900 font-bold w-44" value="Berkesadaran">
+                                    </div>
+                                    <textarea id="langkahPenutup" rows="2" class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. ASESMEN & REFLEKSI -->
+                        <div class="space-y-3 pt-2 border-t border-slate-100">
+                            <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 border-l-2 border-emerald-500 pl-2">7. Asesmen, Refleksi & Pengesahan</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-850">Asesmen Awal</label>
+                                        <input type="text" id="asesmenAwal" class="border border-slate-200 p-1.5 rounded-lg text-xs w-full">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-850">Asesmen Proses</label>
+                                        <input type="text" id="asesmenProses" class="border border-slate-200 p-1.5 rounded-lg text-xs w-full">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-850">Asesmen Akhir</label>
+                                        <input type="text" id="asesmenAkhir" class="border border-slate-200 p-1.5 rounded-lg text-xs w-full">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Refleksi Guru</label>
+                                    <textarea id="refleksiGuru" rows="1.5" class="w-full p-2 border border-slate-200 rounded-xl text-xs" placeholder="Evaluasi pedagogis guru..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Refleksi Siswa</label>
+                                    <textarea id="refleksiSiswa" rows="1.5" class="w-full p-2 border border-slate-200 rounded-xl text-xs" placeholder="Pertanyaan kesadaran siswa..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-800 mb-0.5">Daftar Lampiran (Pisah Baris)</label>
+                                    <textarea id="lampiran" rows="2" class="w-full p-2 border border-slate-200 rounded-xl text-xs" placeholder="LKPD&#10;Formatif test&#10;Sumatif test"></textarea>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-800">Kota Dokumen</label>
+                                    <input type="text" id="kotaTtd" class="p-1.5 border rounded-lg text-xs w-full" value="Cianjur">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-800">Tanggal Dokumen</label>
+                                    <input type="text" id="tanggalTtd" class="p-1.5 border rounded-lg text-xs w-full" placeholder="Contoh: Juli 2026">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-800">Nama Kepala Sekolah</label>
+                                    <input type="text" id="kepalaSekolah" class="p-1.5 border rounded-lg text-xs w-full" value="Dra. Christina Berliana">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-800">NIP Kepala Sekolah</label>
+                                    <input type="text" id="nipKepsek" class="p-1.5 border rounded-lg text-xs w-full">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- CONTAINER WRAPPER: Viewport responsif F4 yang mencegah pemotongan di sisi kanan -->
+                <div class="lg:col-span-7 w-full overflow-x-auto flex flex-col items-center p-2 sm:p-4 bg-slate-100/30 rounded-2xl border border-slate-200/50 no-print">
+                    
+                    <!-- PEMBUNGKUS UTAMA YANG AKAN DI-EXPORT SEBAGAI PDF DENGAN PERFECT BREAKS -->
+                    <div id="printLayout" class="space-y-6">
+                        
+                        <!-- ================= PAGE 1 (INFORMASI & STRATEGI) ================= -->
+                        <div class="print-page shadow-2xl border border-slate-100">
+                            <div class="space-y-4 text-xs text-justify leading-relaxed flex-1">
+                                <!-- HEAD BANNER -->
+                                <div class="border-b-2 border-emerald-800 pb-2 flex justify-between items-end">
+                                    <div>
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">Deep Learning Model</span>
+                                        <h2 class="text-sm font-black text-slate-950 tracking-tight mt-1" id="viewHeaderModulTitle">MODUL AJAR – AWAL</h2>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs font-black text-emerald-900" id="viewMapel">Mata Pelajaran : -</p>
+                                        <p class="text-[10px] font-bold text-slate-900" id="viewFaseKelasHeader">Fase / Kelas : -</p>
+                                    </div>
+                                </div>
+
+                                <!-- I. INFORMASI UMUM (CONDITIONAL VIEW) -->
+                                <div id="previewGroupAwalOnly">
+                                    <h3 class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 py-0.5 px-2 border-l-4 border-emerald-800 mb-1">I. INFORMASI UMUM</h3>
+                                    <table class="w-full border-collapse border border-slate-300 text-xs text-slate-950">
+                                        <tbody>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="w-1/3 p-1.5 bg-slate-50 font-black border-r border-slate-300">Nama Sekolah</td>
+                                                <td class="p-1.5 font-bold" id="viewNamaSekolah">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Nama Penyusun</td>
+                                                <td class="p-1.5 font-bold" id="viewNamaPenyusun">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Tahun Pelajaran</td>
+                                                <td class="p-1.5 font-bold" id="viewTahunPelajaran">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Fase / Kelas / Semester</td>
+                                                <td class="p-1.5 font-bold" id="viewFaseKelas">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Materi Pokok</td>
+                                                <td class="p-1.5 font-black" id="viewMateri">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Alokasi Waktu Total</td>
+                                                <td class="p-1.5 font-black" id="viewAlokasiWaktu">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Jumlah Total Pertemuan</td>
+                                                <td class="p-1.5 font-bold" id="viewJumlahPertemuan">-</td>
+                                            </tr>
+                                            <tr class="bg-emerald-50/50">
+                                                <td class="p-1.5 font-black border-r border-slate-300 text-emerald-950">Pertemuan & Durasi Sesi</td>
+                                                <td class="p-1.5 text-emerald-950 font-black" id="viewSesiAktif">Pertemuan - ( - )</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- COMPACT TABLE FOR MODUL LANJUTAN -->
+                                <div id="previewGroupLanjutanOnly" class="hidden">
+                                    <h3 class="text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-950 py-0.5 px-2 border-l-4 border-teal-800 mb-1">I. IDENTIFIKASI PERTEMUAN</h3>
+                                    <table class="w-full border-collapse border border-slate-300 text-xs text-slate-950">
+                                        <tbody>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="w-1/3 p-1.5 bg-slate-50 font-black border-r border-slate-300">Fase / Kelas / Semester</td>
+                                                <td class="p-1.5 font-bold" id="viewFaseKelasLanjutan">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Pertemuan Ke-</td>
+                                                <td class="p-1.5 font-black text-emerald-950" id="viewPertemuanKeLanjutan">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 bg-slate-50 font-black border-r border-slate-300">Durasi Sesi</td>
+                                                <td class="p-1.5 font-black" id="viewSesiLanjutan">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- II. KOMPONEN PENDUKUNG -->
+                                <div>
+                                    <h3 class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 py-0.5 px-2 border-l-4 border-emerald-800 mb-1">II. KOMPONEN PENDUKUNG</h3>
+                                    <div class="grid grid-cols-1 gap-1 text-xs text-slate-950">
+                                        <div class="grid grid-cols-12 border-b border-slate-100 pb-0.5">
+                                            <span class="col-span-3 font-black">Model Pembelajaran</span>
+                                            <span class="col-span-1 text-center font-bold">:</span>
+                                            <span class="col-span-8 font-bold" id="viewModelPembelajaran">-</span>
+                                        </div>
+                                        <div class="grid grid-cols-12 border-b border-slate-100 pb-0.5">
+                                            <span class="col-span-3 font-black">Metode Pembelajaran</span>
+                                            <span class="col-span-1 text-center font-bold">:</span>
+                                            <span class="col-span-8 font-bold" id="viewMetodePembelajaran">-</span>
+                                        </div>
+                                        <div class="grid grid-cols-12 border-b border-slate-100 pb-0.5">
+                                            <span class="col-span-3 font-black">Sumber Belajar</span>
+                                            <span class="col-span-1 text-center font-bold">:</span>
+                                            <span class="col-span-8 font-medium" id="viewSumberBelajar">-</span>
+                                        </div>
+                                        <div class="grid grid-cols-12">
+                                            <span class="col-span-3 font-black">Media Pembelajaran</span>
+                                            <span class="col-span-1 text-center font-bold">:</span>
+                                            <span class="col-span-8 font-medium" id="viewMediaPembelajaran">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- III. KOMPONEN INTI -->
+                                <div class="space-y-2">
+                                    <h3 class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 py-0.5 px-2 border-l-4 border-emerald-800 mb-1">III. KOMPONEN INTI (IDENTIFIKASI & DESAIN)</h3>
+                                    <div class="space-y-1.5 text-slate-950">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="font-black block mb-0.5 text-[11px]">Identifikasi Peserta Didik:</span>
+                                                <p class="font-medium bg-slate-50/80 p-1.5 rounded-lg border border-slate-200 text-slate-900 leading-tight" id="viewIdentifikasiPesertaDidik">-</p>
+                                            </div>
+                                            <div>
+                                                <span class="font-black block mb-0.5 text-[11px]">Identifikasi Materi Pelajaran:</span>
+                                                <p class="font-medium bg-slate-50/80 p-1.5 rounded-lg border border-slate-200 text-slate-900 leading-tight" id="viewIdentifikasiMateri">-</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-12 gap-2 bg-emerald-50/50 p-2 rounded-lg border border-emerald-200">
+                                            <div class="md:col-span-5">
+                                                <span class="font-black block mb-0.5">Dimensi Profil Lulusan:</span>
+                                                <ul class="list-disc pl-4 font-bold text-slate-900" id="viewProfilLulusan"></ul>
+                                            </div>
+                                            <div class="md:col-span-7 text-xs font-bold space-y-0.5">
+                                                <span class="font-black text-emerald-950 block mb-0.5 border-b border-emerald-200 pb-0.5">Karakter BEST (PKBN2K)</span>
+                                                <div class="grid grid-cols-2 gap-1 text-[11px]">
+                                                    <p>Profil: <span id="viewBevansProfil" class="font-black text-emerald-950">-</span></p>
+                                                    <p>Nilai: <span id="viewBevansDpl" class="font-black text-emerald-900">-</span></p>
+                                                </div>
+                                                <p class="font-medium text-[11px] leading-tight">Indikator: <span id="viewBevansIndikator" class="text-slate-800">-</span></p>
+                                                <p class="font-black text-emerald-950 bg-emerald-100/70 px-1 py-0.5 rounded text-[11px]">Alkitab: <span id="viewBevansAlkitab" class="italic">-</span></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 border-b border-slate-100 pb-1">
+                                            <div>
+                                                <span class="font-black block mb-0.5">Capaian Pembelajaran:</span>
+                                                <p class="font-bold italic text-slate-900 text-[11px] leading-tight" id="viewCapaianPembelajaran">-</p>
+                                                <p class="text-[10px] text-slate-700 mt-1">Disiplin Ilmu: <span class="font-black" id="viewDisiplinIlmu">-</span></p>
+                                            </div>
+                                            <div>
+                                                <span class="font-black block mb-0.5">Topik Pembelajaran:</span>
+                                                <p class="font-black text-emerald-950 text-[11px]" id="viewTopikPembelajaran">-</p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <span class="font-black block mb-0.5">Tujuan Pembelajaran (TP):</span>
+                                            <div id="viewTujuanPembelajaran" class="pl-4 space-y-0.5 font-bold text-slate-900 text-[11px]"></div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-3 gap-1.5 text-xs border-b pb-1">
+                                            <div><span class="font-black block text-slate-700">Mitra Belajar:</span><p id="viewKemitraan" class="font-medium">-</p></div>
+                                            <div><span class="font-black block text-slate-700">Lingkungan:</span><p id="viewLingkungan" class="font-medium">-</p></div>
+                                            <div><span class="font-black block text-slate-700">Digital Tools:</span><p id="viewDigital" class="font-medium">-</p></div>
+                                        </div>
+
+                                        <div>
+                                            <span class="font-black block mb-0.5 text-[11px]">Strategi Diferensiasi:</span>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[11px]">
+                                                <div><h5 class="font-black text-slate-900">1. Konten</h5><p class="font-medium text-slate-800 leading-tight" id="viewDifKonten">-</p></div>
+                                                <div><h5 class="font-black text-slate-900">2. Proses</h5><p class="font-medium text-slate-800 leading-tight" id="viewDifProses">-</p></div>
+                                                <div><h5 class="font-black text-slate-900">3. Produk</h5><p class="font-medium text-slate-800 leading-tight" id="viewDifProduk">-</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= PAGE 2 (LANGKAH & ASESMEN) ================= -->
+                        <div class="print-page shadow-2xl border border-slate-100 page-break">
+                            <div class="space-y-4 text-xs text-justify leading-relaxed flex-1 flex flex-col justify-between">
+                                
+                                <!-- IV. LANGKAH PEMBELAJARAN DEEP LEARNING -->
+                                <div class="space-y-2">
+                                    <h3 class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 py-0.5 px-2 border-l-4 border-emerald-800 mb-1">IV. LANGKAH PEMBELAJARAN (DEEP LEARNING MODEL)</h3>
+                                    <div class="space-y-2 text-xs text-slate-950">
+                                        <div class="border border-slate-300 rounded-lg overflow-hidden">
+                                            <div class="bg-slate-50 px-2 py-0.5 flex justify-between items-center border-b border-slate-300">
+                                                <h4 class="font-black text-[10px] uppercase">A. Kegiatan Awal</h4>
+                                                <span class="text-[8px] bg-slate-200 font-black px-1.5 py-0.5 rounded" id="viewPrinsipAwal">Prinsip: -</span>
+                                            </div>
+                                            <div class="p-2 font-medium text-slate-900 whitespace-pre-line leading-tight text-[11px]" id="viewLangkahAwal">-</div>
+                                        </div>
+
+                                        <div class="border border-emerald-300 bg-emerald-50/10 rounded-lg overflow-hidden">
+                                            <div class="bg-emerald-800 text-white px-2 py-0.5 flex justify-between items-center">
+                                                <h4 class="font-black text-[10px] uppercase">B. Kegiatan Inti (Siklus Mendalam)</h4>
+                                                <span class="text-[8px] bg-emerald-950 text-emerald-200 font-black px-1.5 py-0.5 rounded">3 Siklus Sikap</span>
+                                            </div>
+                                            <div class="divide-y divide-emerald-200 text-[11px] leading-tight">
+                                                <div class="p-2">
+                                                    <div class="flex justify-between items-center mb-0.5"><span class="font-black text-emerald-950">1. MEMAHAMI (Understand)</span><span class="text-[9px] font-black text-emerald-800" id="viewPrinsipMemahami">-</span></div>
+                                                    <p class="font-medium text-slate-900 whitespace-pre-line" id="viewLangkahMemahami">-</p>
+                                                </div>
+                                                <div class="p-2">
+                                                    <div class="flex justify-between items-center mb-0.5"><span class="font-black text-emerald-950">2. MENGAPLIKASI (Apply)</span><span class="text-[9px] font-black text-emerald-800" id="viewPrinsipMengaplikasi">-</span></div>
+                                                    <p class="font-medium text-slate-900 whitespace-pre-line" id="viewLangkahMengaplikasi">-</p>
+                                                </div>
+                                                <div class="p-2">
+                                                    <div class="flex justify-between items-center mb-0.5"><span class="font-black text-emerald-950">3. MEREFLEKSI (Reflect)</span><span class="text-[9px] font-black text-emerald-800" id="viewPrinsipMerefleksi">-</span></div>
+                                                    <p class="font-medium text-slate-900 whitespace-pre-line" id="viewLangkahMerefleksi">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-slate-300 rounded-lg overflow-hidden">
+                                            <div class="bg-slate-50 px-2 py-0.5 flex justify-between items-center border-b border-slate-300">
+                                                <h4 class="font-black text-[10px] uppercase">C. Kegiatan Penutup</h4>
+                                                <span class="text-[8px] bg-slate-200 font-black px-1.5 py-0.5 rounded" id="viewPrinsipPenutup">Prinsip: -</span>
+                                            </div>
+                                            <div class="p-2 font-medium text-slate-900 whitespace-pre-line leading-tight text-[11px]" id="viewLangkahPenutup">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- V. ASESMEN & REFLEKSI -->
+                                <div class="space-y-2">
+                                    <h3 class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 py-0.5 px-2 border-l-4 border-emerald-800 mb-1">V. ASESMEN & REFLEKSI PEMBELAJARAN</h3>
+                                    <table class="w-full border-collapse border border-slate-300 text-xs text-slate-950">
+                                        <thead>
+                                            <tr class="bg-slate-100 border-b border-slate-300 text-left">
+                                                <th class="p-1.5 font-black w-1/3">Tipe Asesmen</th>
+                                                <th class="p-1.5 font-black">Strategi & Deskripsi Asesmen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 font-black bg-slate-50 border-r border-slate-300">Awal (Diagnostic)</td>
+                                                <td class="p-1.5 font-bold" id="viewAsesmenAwal">-</td>
+                                            </tr>
+                                            <tr class="border-b border-slate-300">
+                                                <td class="p-1.5 font-black bg-slate-50 border-r border-slate-300">Proses (Formatif)</td>
+                                                <td class="p-1.5 font-bold" id="viewAsesmenProses">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-1.5 font-black bg-slate-50 border-r border-slate-300">Akhir (Sumatif)</td>
+                                                <td class="p-1.5 font-bold" id="viewAsesmenAkhir">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-950">
+                                        <div class="border rounded-lg p-2 bg-slate-50/50 leading-tight">
+                                            <span class="font-black block uppercase text-[8px] tracking-wide text-slate-700">Refleksi Guru:</span>
+                                            <p class="font-bold italic text-[11px]" id="viewRefleksiGuru">-</p>
+                                        </div>
+                                        <div class="border rounded-lg p-2 bg-slate-50/50 leading-tight">
+                                            <span class="font-black block uppercase text-[8px] tracking-wide text-slate-700">Refleksi Siswa:</span>
+                                            <p class="font-bold italic text-[11px]" id="viewRefleksiSiswa">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-2 text-slate-950 leading-tight">
+                                        <span class="font-black block text-[8px] uppercase text-slate-700">Lampiran Berkas Pendukung:</span>
+                                        <div class="pl-2 mt-0.5 space-y-0.5 font-bold text-[11px]" id="viewLampiran"></div>
+                                    </div>
+                                </div>
+
+                                <!-- SIGNATURES (PLACED STRICTLY AT THE BOTTOM OF PAGE 2) -->
+                                <div class="pt-2 border-t border-slate-300 text-xs text-slate-950 font-bold">
+                                    <div class="flex justify-between items-start">
+                                        <div class="text-center w-48 space-y-8">
+                                            <div>
+                                                <p class="text-slate-700">Mengetahui,</p>
+                                                <p class="font-black">Kepala Sekolah</p>
+                                            </div>
+                                            <div>
+                                                <p class="font-black underline text-black" id="viewKepalaSekolah">Dra. Christina Berliana</p>
+                                                <p class="text-[10px] text-slate-700" id="viewNipKepsek">NIP. -</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-center w-48 space-y-8">
+                                            <div>
+                                                <p class="text-slate-700" id="viewKotaTanggal">Cianjur, .......... 2026</p>
+                                                <p class="font-black">Guru Mata Pelajaran,</p>
+                                            </div>
+                                            <div>
+                                                <p class="font-black underline text-black" id="viewPenyusunTtd">....................................</p>
+                                                <p class="text-[10px] text-slate-700">Guru Pengampu</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- DATABASE MODAL (BEST / PKBN2K SINKRONISASI) -->
+    <div id="bestModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-[150] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-5 space-y-4 flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                    <h3 class="text-sm font-black text-slate-950">Database Hubungan Profil BEST & Karakter PKBN2K</h3>
+                    <p class="text-[10px] text-slate-600 font-bold">Pilih item untuk melakukan sinkronisasi otomatis ke kolom modul.</p>
+                </div>
+                <button onclick="toggleBestModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <input type="text" id="modalSearch" oninput="filterBestTable()" class="px-3 py-1.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Cari Indikator atau Ayat...">
+                <select id="filterBest" onchange="filterBestTable()" class="px-3 py-1.5 border border-slate-200 rounded-xl text-xs outline-none bg-white font-bold text-slate-800">
+                    <option value="">-- Semua Profil BEST --</option>
+                    <option value="Be Tough">Be Tough</option>
+                    <option value="Excel Worldwide">Excel Worldwide</option>
+                    <option value="Share with Society">Share with Society</option>
+                    <option value="Trust in God">Trust in God</option>
+                </select>
+                <select id="filterLulusan" onchange="filterBestTable()" class="px-3 py-1.5 border border-slate-200 rounded-xl text-xs outline-none bg-white font-bold text-slate-800">
+                    <option value="">-- Semua Profil Lulusan --</option>
+                    <option value="Kemandirian">Kemandirian</option>
+                    <option value="Penalaran Kritis">Penalaran Kritis</option>
+                    <option value="Kreativitas">Kreativitas</option>
+                    <option value="Kewargaan">Kewargaan</option>
+                    <option value="Kolaborasi">Kolaborasi</option>
+                    <option value="Komunikasi">Komunikasi</option>
+                    <option value="Keimanan">Keimanan & Ketakwaan</option>
+                    <option value="Kesehatan">Kesehatan</option>
+                </select>
+            </div>
+
+            <div class="overflow-y-auto flex-1 border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-50 sticky top-0 border-b border-slate-200 text-slate-800 font-black">
+                        <tr>
+                            <th class="p-2.5">Profil BEST</th>
+                            <th class="p-2.5">Profil Lulusan</th>
+                            <th class="p-2.5">Nilai PKBN2K</th>
+                            <th class="p-2.5 w-[38%]">Indikator Karakter</th>
+                            <th class="p-2.5">Alkitab</th>
+                            <th class="p-2.5 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bestTableBody" class="divide-y divide-slate-100 text-slate-900 font-bold"></tbody>
+                </table>
+            </div>
+            
+            <div class="pt-2 text-right">
+                <button onclick="toggleBestModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-extrabold border border-slate-200">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Database BEST & Karakter PKBN2K
+        const bestDatabase = [
+            { id: 1, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Keberanian", indikator: "Bertanggung jawab atas proses dan hasil belajarnya sendiri", alkitab: "Galatia 6:5" },
+            { id: 2, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Kesetiaan", indikator: "Mengerjakan tugas sampai selesai walau banyak rintangan", alkitab: "Kolose 3:23" },
+            { id: 3, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Ketekunan", indikator: "Menyelesaikan tugas secara mandiri", alkitab: "Amsal 6:6-8" },
+            { id: 4, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Keberanian", indikator: "Memperlihatkan sikap mandiri dalam menentukan pilihan", alkitab: "Yosua 24:15" },
+            { id: 5, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Penguasaan diri", indikator: "Mengelola waktu, sumber daya dan tindakan agar mencapai tujuan", alkitab: "Efesus 5:15-16" },
+            { id: 6, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Ketekunan", indikator: "Gigih dalam mencapai tujuan", alkitab: "Amsal 24:16" },
+            { id: 7, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Kesetiaan/Kejujuran", indikator: "Menepati janji", alkitab: "Pengkhotbah 5:4-5" },
+            { id: 8, best: "Be Tough", lulusan: "Kemandirian", pkbn2k: "Ketaatan", indikator: "Tepat waktu dalam menyelesaikan tugas dan kegiatan sehari-hari", alkitab: "Lukas 16:10" },
+            { id: 9, best: "Be Tough", lulusan: "Penalaran Kritis", pkbn2k: "Keberanian", indikator: "Memiliki rasa ingin tahu", alkitab: "Amsal 18:15" },
+            { id: 10, best: "Be Tough", lulusan: "Penalaran Kritis", pkbn2k: "Ketekunan", indikator: "Berpikir logis, analitis dan reflektif", alkitab: "Amsal 2:2-6" },
+            { id: 11, best: "Be Tough", lulusan: "Penalaran Kritis", pkbn2k: "Ketekunan", indikator: "Menggunakan literasi dan numerasi untuk memecahkan masalah", alkitab: "Yakobus 1:5" },
+            { id: 12, best: "Be Tough", lulusan: "Penalaran Kritis", pkbn2k: "Keberanian", indikator: "Memberikan saran/solusi yang baik", alkitab: "Amsal 11:14" },
+            { id: 13, best: "Be Tough", lulusan: "Penalaran Kritis", pkbn2k: "Kesetiaan", indikator: "Melakukan tugas demi kebaikan dan kebenaran", alkitab: "Mikha 6:8" },
+            { id: 14, best: "Excel Worldwide", lulusan: "Kreativitas", pkbn2k: "Rendah hati", indikator: "Mau menerima kritik", alkitab: "Amsal 12:15" },
+            { id: 15, best: "Excel Worldwide", lulusan: "Kreativitas", pkbn2k: "Rendah Hati", indikator: "Menerima hal yang baru (fleksibel)", alkitab: "Yesaya 43:19" },
+            { id: 16, best: "Excel Worldwide", lulusan: "Kreativitas", pkbn2k: "Keberanian", indikator: "Berpikir secara inovatif dan orisinal", alkitab: "Keluaran 35:31-32" },
+            { id: 17, best: "Excel Worldwide", lulusan: "Kreativitas", pkbn2k: "Ketekunan", indikator: "Menemukan solusi pemecahan masalah dari berbagai sudut pandang", alkitab: "Pengkhotbah 7:8" },
+            { id: 18, best: "Excel Worldwide", lulusan: "Kreativitas", pkbn2k: "Keberanian", indikator: "Memelopori hal baru melalui gagasan yang baik dan benar", alkitab: "Matius 5:16" },
+            { id: 19, best: "Share with Society", lulusan: "Kolaborasi (Peduli, Berbagi, Kerjasama)", pkbn2k: "Kepedulian/Pengorbanan", indikator: "Menjaga keharmonisan untuk mencapai tujuan bersama", alkitab: "Efesus 4:3" },
+            { id: 20, best: "Trust in God", lulusan: "Keimanan dan Ketakwaan", pkbn2k: "Kesetiaan", indikator: "Memelihara kehidupan rohani (doa, baca Alkitab) dengan setia", alkitab: "Mazmur 1:2" }
+        ];
+
+        let currentMode = 'awal'; // 'awal' atau 'lanjutan'
+
+        const inputs = [
+            'mataPelajaran', 'namaSekolah', 'namaPenyusun', 'tahunPelajaran', 'faseKelas', 
+            'materi', 'alokasiWaktu', 'jumlahPertemuan', 'pertemuanKe', 'alokasiWaktuSesi',
+            'modelPembelajaran', 'metodePembelajaran', 'sumberBelajar', 'mediaPembelajaran',
+            'identifikasiPesertaDidik', 'identifikasiMateri', 'capaianPembelajaran', 'disiplinIlmu',
+            'topikPembelajaran', 'tujuanPembelajaran', 'kemitraan', 'lingkungan', 'digital',
+            'bevansProfil', 'bevansDpl', 'bevansIndikator', 'bevansAlkitab', 'difKonten', 'difProses', 'difProduk',
+            'langkahAwal', 'prinsipAwal', 'langkahMemahami', 'prinsipMemahami', 'langkahMengaplikasi',
+            'prinsipMengaplikasi', 'langkahMerefleksi', 'prinsipMerefleksi', 'langkahPenutup', 'prinsipPenutup',
+            'asesmenAwal', 'asesmenProses', 'asesmenAkhir', 'refleksiGuru', 'refleksiSiswa', 'lampiran',
+            'kotaTtd', 'tanggalTtd', 'kepalaSekolah', 'nipKepsek'
+        ];
+
+        // Contoh Data Skenario Biologi - Deep Learning Model
+        const sampleDataAwal = {
+            mataPelajaran: "Biologi",
+            namaSekolah: "SMP BPK PENABUR Cianjur",
+            namaPenyusun: "PITER PAMUTTU, S.Pd.",
+            tahunPelajaran: "2025/2026",
+            faseKelas: "Fase E / Kelas X / Semester Genap",
+            materi: "Ekosistem Sungai Ciliwung",
+            modelPembelajaran: "Project-Based Learning (PjBL)",
+            metodePembelajaran: "Diskusi Kelompok, Eksplorasi Lapangan, Wawancara",
+            sumberBelajar: "Buku Paket Ekologi Kelas X, Artikel Isu Lingkungan Sungai Ciliwung.",
+            mediaPembelajaran: "Video Komparasi Kondisi Sungai, Google Classroom, Panduan Kerja Kelompok.",
+            identifikasiPesertaDidik: "Peserta didik memiliki ketertarikan tinggi pada isu ekologi lokal namun membutuhkan panduan pemetaan komponen abiotik-biotik.",
+            identifikasiMateri: "Materi faktual meliputi kasus Sungai Ciliwung. Materi nilai mencakup ketaatan merawat ciptaan Tuhan (Mazmur 24:1).",
+            capaianPembelajaran: "Peserta didik menyelidiki dampak aktivitas manusia terhadap keseimbangan ekosistem terdekat.",
+            disiplinIlmu: "Biologi Lingkungan",
+            topikPembelajaran: "Ketergantungan Komponen Biotik dan Abiotik di Sungai",
+            tujuanPembelajaran: "1. Mengidentifikasi komponen penyusun ekosistem sungai.\n2. Menganalisis keterkaitan rantai makanan yang terganggu akibat limbah.",
+            kemitraan: "Komunitas Peduli Sungai, Warga Bantaran Sungai Ciliwung.",
+            lingkungan: "Fisik: Area bantaran sungai terdekat. Budaya: Saling memuliakan pendapat.",
+            digital: "Google Classroom, Mentimeter untuk refleksi awal.",
+            difKonten: "Artikel bagi penyuka membaca, video interaktif bagi audiotori.",
+            difProses: "Pekerjaan terstruktur dalam kelompok kecil heterogen.",
+            difProduk: "Laporan singkat tertulis atau rekaman audio presentasi.",
+            langkahAwal: "• Doa bersama dan sapaan ramah.\n• Melakukan aktivitas pernapasan mindfulness (Berkesadaran).\n• Pemutaran video Sungai Ciliwung terpolusi untuk menggugah simpati.",
+            prinsipAwal: "Berkesadaran, Bermakna",
+            langkahMemahami: "• Siswa berdiskusi memilah komponen biotik dan abiotik.\n• Menyusun rantai makanan hipotetis menggunakan kartu gambar sungai.",
+            prinsipMemahami: "Bermakna, Menggembirakan",
+            langkahMengaplikasi: "• Melakukan simulasi sederhana pengendapan air keruh memakai bahan alami di sekolah.",
+            prinsipMengaplikasi: "Bermakna, Kontekstual",
+            langkahMerefleksi: "• Setiap siswa menulis 1 komitmen menjaga air bersih di jurnal refleksi.",
+            prinsipMerefleksi: "Berkesadaran",
+            langkahPenutup: "• Guru menyimpulkan intisari pembelajaran dan memuliakan partisipasi aktif seluruh siswa.",
+            prinsipPenutup: "Berkesadaran",
+            asesmenAwal: "Kuis lisan singkat mengenai komponen abiotik.",
+            asesmenProses: "Rubrik keaktifan diskusi kelompok.",
+            asesmenAkhir: "Esai reflektif komitmen air.",
+            refleksiGuru: "Apakah video pemicu berhasil memantik rasa simpati siswa?",
+            refleksiSiswa: "Langkah kecil apa yang siap saya lakukan untuk melestarikan air di rumah?",
+            lampiran: "1. LKPD Komponen Sungai\n2. Rubrik Diskusi",
+            kotaTtd: "Cianjur",
+            tanggalTtd: "Juli 2026",
+            kepalaSekolah: "Dra. Christina Berliana",
+            nipKepsek: "196812101994032001"
+        };
+
+        const sampleDataLanjutan = {
+            ...sampleDataAwal,
+            faseKelas: "Fase E / Kelas X / Semester Genap",
+            pertemuanKe: "2",
+            materi: "Aksi Nyata Pemulihan Ekosistem Sungai",
+            tujuanPembelajaran: "1. Merancang prototipe filter air sederhana ramah lingkungan.\n2. Melaksanakan kampanye digital pelestarian air.",
+            langkahAwal: "• Salam, doa, dan mengulas komitmen kebersihan air dari pertemuan 1.",
+            langkahMemahami: "• Memahami prinsip mekanis penyaringan pasir lambat melalui studi literatur singkat.",
+            langkahMengaplikasi: "• Siswa merakit botol penyaring air berkelompok dan menguji efektivitasnya langsung.",
+            langkahMerefleksi: "• Menilai kualitas air filter buatan rekan sejawat secara konstruktif.",
+            langkahPenutup: "• Evaluasi efisiensi bahan filter, doa penutup bersama.",
+            asesmenAwal: "Tanya jawab lisan materi filter.",
+            asesmenProses: "Rubrik kinerja perakitan filter air.",
+            asesmenAkhir: "Uji coba kejernihan air hasil filter.",
+            lampiran: "1. LKPD Pembuatan Filter\n2. Lembar Penilaian Sejawat"
+        };
+
+        function startApp(mode) {
+            currentMode = mode;
+            document.getElementById('landingScreen').classList.add('hidden');
+            document.getElementById('mainWorkspace').classList.remove('hidden');
+            
+            // Atur Label Header
+            const hTitle = document.getElementById('headerAppTitle');
+            const hSubtitle = document.getElementById('headerAppSubtitle');
+            if (mode === 'awal') {
+                hTitle.innerHTML = 'DeepLearning <span class="text-emerald-200">ModulPIT – Awal</span>';
+                hSubtitle.innerText = "Mode Pembuatan RPP / Modul Pertemuan Pembuka";
+            } else {
+                hTitle.innerHTML = 'DeepLearning <span class="text-emerald-200">ModulPIT – Lanjutan</span>';
+                hSubtitle.innerText = "Mode Pembuatan RPP / Modul Pertemuan Lanjutan";
+            }
+            
+            adjustFormAndPreviewByMode();
+            updatePreview();
+        }
+
+        function goBackToLanding() {
+            document.getElementById('mainWorkspace').classList.add('hidden');
+            document.getElementById('landingScreen').classList.remove('hidden');
+        }
+
+        // Sembunyikan field yang tidak relevan pada mode Lanjutan
+        function adjustFormAndPreviewByMode() {
+            const groupFormAwal = document.getElementById('formGroupAwalOnly');
+            const groupFormMateri = document.getElementById('formGroupAwalOnlyMateri');
+            const previewAwal = document.getElementById('previewGroupAwalOnly');
+            const previewLanjutan = document.getElementById('previewGroupLanjutanOnly');
+            
+            if (currentMode === 'awal') {
+                if(groupFormAwal) groupFormAwal.classList.remove('hidden');
+                if(groupFormMateri) groupFormMateri.classList.remove('hidden');
+                if(previewAwal) previewAwal.classList.remove('hidden');
+                if(previewLanjutan) previewLanjutan.classList.add('hidden');
+                document.getElementById('viewHeaderModulTitle').innerText = "MODUL AJAR – AWAL";
+            } else {
+                if(groupFormAwal) groupFormAwal.classList.add('hidden');
+                if(groupFormMateri) groupFormMateri.classList.add('hidden');
+                if(previewAwal) previewAwal.classList.add('hidden');
+                if(previewLanjutan) previewLanjutan.classList.remove('hidden');
+                document.getElementById('viewHeaderModulTitle').innerText = "MODUL AJAR – LANJUTAN";
+            }
+        }
+
+        // Tampilkan Toast
+        function showNotification(text) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').innerText = text;
+            toast.className = toast.className.replace('opacity-0 pointer-events-none translate-y-[-20px]', 'opacity-100 pointer-events-auto translate-y-0');
+            setTimeout(() => {
+                toast.className = toast.className.replace('opacity-100 pointer-events-auto translate-y-0', 'opacity-0 pointer-events-none translate-y-[-20px]');
+            }, 2500);
+        }
+
+        function hitungTotalJP() {
+            const jmlPertemuan = parseInt(document.getElementById('jumlahPertemuan').value) || 0;
+            const alokasiSesi = document.getElementById('alokasiWaktuSesi').value || "";
+            
+            const match = alokasiSesi.match(/(\d+)/);
+            const jpPerPertemuan = match ? parseInt(match[0]) : 0;
+            
+            if (jmlPertemuan > 0 && jpPerPertemuan > 0) {
+                const totalJP = jmlPertemuan * jpPerPertemuan;
+                const formattedTotal = `${totalJP} JP (${jmlPertemuan} Pertemuan x ${jpPerPertemuan} JP)`;
+                document.getElementById('alokasiWaktu').value = formattedTotal;
+            } else {
+                document.getElementById('alokasiWaktu').value = "";
+            }
+        }
+
+        function setPertemuan(val) {
+            document.getElementById('jumlahPertemuan').value = val;
+            hitungTotalJP();
+            updatePreview();
+            showNotification(`Jumlah Pertemuan diset: ${val} Kali`);
+        }
+
+        function setJPSesi(jp) {
+            document.getElementById('alokasiWaktuSesi').value = `${jp} JP x 45 menit`;
+            hitungTotalJP();
+            updatePreview();
+            showNotification(`Alokasi Sesi diset: ${jp} JP`);
+        }
+
+        // Pilihan Cepat Form Lainnya
+        function setMapel(val) {
+            document.getElementById('mataPelajaran').value = val;
+            updatePreview();
+        }
+
+        let baseFase = "";
+        function setFase(fStr) { baseFase = fStr; assembleFaseKelas(); }
+        function setSemester(sStr) { assembleFaseKelas(sStr); }
+        function assembleFaseKelas(smt = "Semester Genap") {
+            if(!baseFase) baseFase = "Fase E / Kelas X";
+            document.getElementById('faseKelas').value = `${baseFase} / ${smt}`;
+            updatePreview();
+        }
+
+        function setModel(val) {
+            document.getElementById('modelPembelajaran').value = val;
+            updatePreview();
+        }
+
+        function appendMetode(val) {
+            let current = document.getElementById('metodePembelajaran').value.trim();
+            if(!current) document.getElementById('metodePembelajaran').value = val;
+            else if(!current.includes(val)) document.getElementById('metodePembelajaran').value = current + ", " + val;
+            updatePreview();
+        }
+
+        function clearMetode() {
+            document.getElementById('metodePembelajaran').value = "";
+            updatePreview();
+        }
+
+        function saveProfile() {
+            const nSekolah = document.getElementById('namaSekolah').value;
+            const nGuru = document.getElementById('namaPenyusun').value;
+            const tAjar = document.getElementById('tahunPelajaran').value;
+            const fKls = document.getElementById('faseKelas').value;
+
+            localStorage.setItem('modulPIT_sekolah', nSekolah);
+            localStorage.setItem('modulPIT_guru', nGuru);
+            localStorage.setItem('modulPIT_tahun', tAjar);
+            localStorage.setItem('modulPIT_fase', fKls);
+
+            showNotification("Profil Lembaga & Guru berhasil disimpan lokal!");
+        }
+
+        function loadProfile() {
+            const nSekolah = localStorage.getItem('modulPIT_sekolah');
+            const nGuru = localStorage.getItem('modulPIT_guru');
+            const tAjar = localStorage.getItem('modulPIT_tahun');
+            const fKls = localStorage.getItem('modulPIT_fase');
+
+            if(nSekolah || nGuru) {
+                if(nSekolah) document.getElementById('namaSekolah').value = nSekolah;
+                if(nGuru) document.getElementById('namaPenyusun').value = nGuru;
+                if(tAjar) document.getElementById('tahunPelajaran').value = tAjar;
+                if(fKls) document.getElementById('faseKelas').value = fKls;
+                updatePreview();
+                showNotification("Profil lokal berhasil dimuat kembali!");
+            } else {
+                showNotification("Belum ada profil tersimpan.");
+            }
+        }
+
+        function toggleBestModal() {
+            document.getElementById('bestModal').classList.toggle('hidden');
+        }
+
+        function initBestTable() {
+            const tbody = document.getElementById('bestTableBody');
+            tbody.innerHTML = '';
+            bestDatabase.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100 cursor-pointer";
+                tr.onclick = () => selectBestItem(item.id);
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-slate-900">${item.best}</td>
+                    <td class="p-2.5 text-slate-800">${item.lulusan}</td>
+                    <td class="p-2.5 text-emerald-900 font-extrabold">${item.pkbn2k}</td>
+                    <td class="p-2.5 leading-tight font-medium text-slate-800">${item.indikator}</td>
+                    <td class="p-2.5 italic text-slate-950 font-black">${item.alkitab}</td>
+                    <td class="p-2.5 text-center"><button class="bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg text-[10px]">Pilih</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function selectBestItem(id) {
+            const item = bestDatabase.find(x => x.id === id);
+            if(item) {
+                document.getElementById('bevansProfil').value = item.best;
+                document.getElementById('bevansDpl').value = item.pkbn2k;
+                document.getElementById('bevansIndikator').value = item.indikator;
+                document.getElementById('bevansAlkitab').value = item.alkitab;
+
+                document.querySelectorAll('input[name="profilLulusan"]').forEach(cb => {
+                    cb.checked = cb.value.toLowerCase().includes(item.lulusan.toLowerCase().split(' ')[0]);
+                });
+                toggleBestModal();
+                updatePreview();
+                showNotification(`Nilai Karakter disinkronkan: ${item.pkbn2k}`);
+            }
+        }
+
+        function filterBestTable() {
+            const query = document.getElementById('modalSearch').value.toLowerCase();
+            const filterBest = document.getElementById('filterBest').value;
+            const filterLulusan = document.getElementById('filterLulusan').value;
+            const tbody = document.getElementById('bestTableBody');
+            tbody.innerHTML = '';
+            bestDatabase.forEach(item => {
+                if((item.indikator.toLowerCase().includes(query) || item.alkitab.toLowerCase().includes(query)) &&
+                   (filterBest === "" || item.best === filterBest) &&
+                   (filterLulusan === "" || item.lulusan.toLowerCase().includes(filterLulusan.toLowerCase().split(' ')[0]))) {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 border-b cursor-pointer";
+                    tr.onclick = () => selectBestItem(item.id);
+                    tr.innerHTML = `
+                        <td class="p-2 font-bold">${item.best}</td>
+                        <td class="p-2">${item.lulusan}</td>
+                        <td class="text-emerald-900 font-extrabold">${item.pkbn2k}</td>
+                        <td class="font-medium text-slate-850">${item.indikator}</td>
+                        <td class="italic font-black">${item.alkitab}</td>
+                        <td class="p-2 text-center"><button class="bg-emerald-700 text-white font-bold px-2.5 py-1 rounded text-[10px]">Pilih</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+
+        function updatePreview() {
+            // Informasi Atas & Judul Mapel
+            document.getElementById('viewMapel').innerText = `Mata Pelajaran : ${document.getElementById('mataPelajaran').value || '-'}`;
+            document.getElementById('viewNamaSekolah').innerText = document.getElementById('namaSekolah').value || '-';
+            document.getElementById('viewNamaPenyusun').innerText = document.getElementById('namaPenyusun').value || '-';
+            document.getElementById('viewPenyusunTtd').innerText = document.getElementById('namaPenyusun').value || '....................';
+            document.getElementById('viewTahunPelajaran').innerText = document.getElementById('tahunPelajaran').value || '-';
+            
+            const faseText = document.getElementById('faseKelas').value || '-';
+            document.getElementById('viewFaseKelas').innerText = faseText;
+            document.getElementById('viewFaseKelasHeader').innerText = `Fase / Kelas : ${faseText}`;
+            
+            document.getElementById('viewMateri').innerText = document.getElementById('materi').value || '-';
+            
+            // Integrasi Mode Lanjutan Atas
+            document.getElementById('viewFaseKelasLanjutan').innerText = faseText;
+            const pKe = document.getElementById('pertemuanKe').value || '1';
+            const durSesi = document.getElementById('alokasiWaktuSesi').value || '-';
+            document.getElementById('viewPertemuanKeLanjutan').innerText = `Pertemuan Ke-${pKe}`;
+            document.getElementById('viewSesiLanjutan').innerText = durSesi;
+
+            document.getElementById('viewAlokasiWaktu').innerText = document.getElementById('alokasiWaktu').value || '-';
+            const jPert = document.getElementById('jumlahPertemuan').value;
+            document.getElementById('viewJumlahPertemuan').innerText = jPert ? `${jPert} kali` : '-';
+            document.getElementById('viewSesiAktif').innerText = `Pertemuan ke-${pKe} ( Durasi: ${durSesi} )`;
+
+            // Komponen Pendukung
+            document.getElementById('viewModelPembelajaran').innerText = document.getElementById('modelPembelajaran').value || '-';
+            document.getElementById('viewMetodePembelajaran').innerText = document.getElementById('metodePembelajaran').value || '-';
+            document.getElementById('viewSumberBelajar').innerText = document.getElementById('sumberBelajar').value || '-';
+            document.getElementById('viewMediaPembelajaran').innerText = document.getElementById('mediaPembelajaran').value || '-';
+
+            // Komponen Inti
+            document.getElementById('viewIdentifikasiPesertaDidik').innerText = document.getElementById('identifikasiPesertaDidik').value || '-';
+            document.getElementById('viewIdentifikasiMateri').innerText = document.getElementById('identifikasiMateri').value || '-';
+
+            // Profil Lulusan Checked
+            const viewProfilList = document.getElementById('viewProfilLulusan');
+            viewProfilList.innerHTML = '';
+            document.querySelectorAll('input[name="profilLulusan"]:checked').forEach(cb => {
+                viewProfilList.innerHTML += `<li>${cb.value}</li>`;
+            });
+
+            // Sisipan Karakter
+            document.getElementById('viewBevansProfil').innerText = document.getElementById('bevansProfil').value || '-';
+            document.getElementById('viewBevansDpl').innerText = document.getElementById('bevansDpl').value || '-';
+            document.getElementById('viewBevansIndikator').innerText = document.getElementById('bevansIndikator').value || '-';
+            document.getElementById('viewBevansAlkitab').innerText = document.getElementById('bevansAlkitab').value || '-';
+
+            // Desain & CP
+            document.getElementById('viewCapaianPembelajaran').innerText = document.getElementById('capaianPembelajaran').value || '-';
+            document.getElementById('viewDisiplinIlmu').innerText = document.getElementById('disiplinIlmu').value || '-';
+            document.getElementById('viewTopikPembelajaran').innerText = document.getElementById('topikPembelajaran').value || '-';
+
+            // Tujuan Pembelajaran
+            const viewTP = document.getElementById('viewTujuanPembelajaran');
+            viewTP.innerHTML = '';
+            (document.getElementById('tujuanPembelajaran').value || '').split('\n').forEach(x => {
+                if(x.trim()) viewTP.innerHTML += `<p class="flex items-start gap-1"><span class="text-emerald-700">•</span> <span>${x}</span></p>`;
+            });
+
+            document.getElementById('viewKemitraan').innerText = document.getElementById('kemitraan').value || '-';
+            document.getElementById('viewLingkungan').innerText = document.getElementById('lingkungan').value || '-';
+            document.getElementById('viewDigital').innerText = document.getElementById('digital').value || '-';
+
+            // Diferensiasi
+            document.getElementById('viewDifKonten').innerText = document.getElementById('difKonten').value || '-';
+            document.getElementById('viewDifProses').innerText = document.getElementById('difProses').value || '-';
+            document.getElementById('viewDifProduk').innerText = document.getElementById('difProduk').value || '-';
+
+            // Langkah Awal & Inti
+            document.getElementById('viewPrinsipAwal').innerText = `Prinsip: ${document.getElementById('prinsipAwal').value}`;
+            document.getElementById('viewLangkahAwal').innerText = document.getElementById('langkahAwal').value || '-';
+            
+            document.getElementById('viewPrinsipMemahami').innerText = `Prinsip: ${document.getElementById('prinsipMemahami').value}`;
+            document.getElementById('viewLangkahMemahami').innerText = document.getElementById('langkahMemahami').value || '-';
+            
+            document.getElementById('viewPrinsipMengaplikasi').innerText = `Prinsip: ${document.getElementById('prinsipMengaplikasi').value}`;
+            document.getElementById('viewLangkahMengaplikasi').innerText = document.getElementById('langkahMengaplikasi').value || '-';
+            
+            document.getElementById('viewPrinsipMerefleksi').innerText = `Prinsip: ${document.getElementById('prinsipMerefleksi').value}`;
+            document.getElementById('viewLangkahMerefleksi').innerText = document.getElementById('langkahMerefleksi').value || '-';
+            
+            document.getElementById('viewPrinsipPenutup').innerText = `Prinsip: ${document.getElementById('prinsipPenutup').value}`;
+            document.getElementById('viewLangkahPenutup').innerText = document.getElementById('langkahPenutup').value || '-';
+
+            // Asesmen & Refleksi
+            document.getElementById('viewAsesmenAwal').innerText = document.getElementById('asesmenAwal').value || '-';
+            document.getElementById('viewAsesmenProses').innerText = document.getElementById('asesmenProses').value || '-';
+            document.getElementById('viewAsesmenAkhir').innerText = document.getElementById('asesmenAkhir').value || '-';
+            document.getElementById('viewRefleksiGuru').innerText = document.getElementById('refleksiGuru').value || '-';
+            document.getElementById('viewRefleksiSiswa').innerText = document.getElementById('refleksiSiswa').value || '-';
+
+            // Lampiran
+            const viewLamp = document.getElementById('viewLampiran');
+            viewLamp.innerHTML = '';
+            (document.getElementById('lampiran').value || '').split('\n').forEach(x => {
+                if(x.trim()) viewLamp.innerHTML += `<div class="flex items-center gap-1">📎 <span>${x}</span></div>`;
+            });
+
+            // TTD
+            document.getElementById('viewKotaTanggal').innerText = `${document.getElementById('kotaTtd').value}, ${document.getElementById('tanggalTtd').value || '... 2026'}`;
+            document.getElementById('viewKepalaSekolah').innerText = document.getElementById('kepalaSekolah').value;
+            
+            const nipVal = document.getElementById('nipKepsek').value;
+            document.getElementById('viewNipKepsek').innerText = nipVal ? `NIP. ${nipVal}` : 'NIP. _______________________';
+        }
+
+        // Muat Data Contoh Cerdas Sesuai Mode Aktif
+        function loadSampleData() {
+            const dataToLoad = currentMode === 'awal' ? sampleDataAwal : sampleDataLanjutan;
+            
+            Object.keys(dataToLoad).forEach(key => {
+                const el = document.getElementById(key);
+                if(el) el.value = dataToLoad[key];
+            });
+
+            // PERBAIKAN EROR: Deklarasikan viewLamp secara eksplisit sebelum digunakan
+            const viewLamp = document.getElementById('viewLampiran');
+            viewLamp.innerHTML = '';
+
+            const lampText = document.getElementById('lampiran').value;
+            if(lampText) {
+                lampText.split('\n').forEach(pt => {
+                    if (pt.trim()) {
+                        const d = document.createElement('div');
+                        d.className = "flex gap-2 items-center text-xs mt-0.5 text-slate-700";
+                        d.innerHTML = `<i data-lucide="paperclip" class="w-3 h-3 text-emerald-600"></i><span>${pt}</span>`;
+                        viewLamp.appendChild(d);
+                    }
+                });
+                lucide.createIcons();
+            } else {
+                viewLamp.innerHTML = '<span class="text-slate-400 italic">Tidak ada lampiran berkas</span>';
+            }
+
+            // TTD
+            document.getElementById('viewKotaTanggal').innerText = `${document.getElementById('kotaTtd').value}, ${document.getElementById('tanggalTtd').value || '... 2026'}`;
+            document.getElementById('viewKepalaSekolah').innerText = document.getElementById('kepalaSekolah').value;
+            
+            const nipVal = document.getElementById('nipKepsek').value;
+            document.getElementById('viewNipKepsek').innerText = nipVal ? `NIP. ${nipVal}` : 'NIP. _______________________';
+
+            // Sinkronisasi data ke pratinjau lembar F4 setelah memuat sampel
+            updatePreview();
+        }
+
+        function downloadPDF() {
+            showNotification("Mengonversi berkas dokumen ke PDF (Ukuran F4)...");
+            const element = document.getElementById('printLayout');
+            
+            const options = {
+                margin: 0, // Margin ditangani internal oleh padding .print-page untuk presisi 100%
+                filename: `Modul_${document.getElementById('mataPelajaran').value || 'DeepLearning'}_F4.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true,
+                    scrollY: 0,
+                    scrollX: 0
+                },
+                pagebreak: { mode: ['css', 'legacy'], before: '.page-break' },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: [215.9, 330.2], // Ukuran presisi F4 Folio
+                    orientation: 'portrait' 
+                }
+            };
+
+            html2pdf().set(options).from(element).save().then(() => {
+                showNotification("PDF Berhasil Diunduh!");
+            }).catch(err => {
+                console.error("PDF Export error: ", err);
+                showNotification("Gagal memproses ekspor PDF.");
+            });
+        }
+
+        function downloadWord() {
+            showNotification("Mengekspor dokumen ke format Word (F4)...");
+            const htmlContent = document.getElementById('printLayout').innerHTML;
+            
+            // Format layout halaman F4 (8.5 in x 13 in) di MS Word menggunakan CSS @page
+            const blobContent = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8">
+                    <title>Export Word F4</title>
+                    <style>
+                        @page {
+                            size: 8.5in 13in;
+                            margin: 1.0in 1.0in 1.0in 1.0in;
+                        }
+                        body { 
+                            font-family: 'Arial', sans-serif; 
+                            line-height: 1.3; 
+                            font-size: 11pt; 
+                            color: #000000;
+                        }
+                        table { 
+                            border-collapse: collapse; 
+                            width: 100%; 
+                            margin-bottom: 12px; 
+                        }
+                        td, th { 
+                            border: 1px solid #94a3b8; 
+                            padding: 6px; 
+                            text-align: left; 
+                            font-size: 10pt;
+                        }
+                        .bg-slate-50 { background-color: #f8fafc !important; }
+                        .bg-emerald-100 { background-color: #d1fae5 !important; }
+                        .bg-emerald-50 { background-color: #ecfdf5 !important; }
+                        .text-emerald-950 { color: #022c22 !important; }
+                        .font-black { font-weight: 900; }
+                        .font-bold { font-weight: bold; }
+                        .page-break { page-break-before: always; }
+                    </style>
+                </head>
+                <body>
+                    ${htmlContent}
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([blobContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Modul_${document.getElementById('mataPelajaran').value || 'DeepLearning'}_F4.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification("Word Berhasil Diekspor!");
+        }
+
+        // BIND EVENT LISTENERS UNTUK LIVE SYNC
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', () => {
+                    if(id === 'jumlahPertemuan' || id === 'alokasiWaktuSesi') {
+                        hitungTotalJP();
+                    }
+                    updatePreview();
+                });
+            }
+        });
+
+        document.querySelectorAll('input[name="profilLulusan"]').forEach(cb => {
+            cb.addEventListener('change', updatePreview);
+        });
+
+        // LOAD FIRST TIME SETUP
+        window.onload = function() {
+            lucide.createIcons();
+            initBestTable();
+            // Coba muat profil default otomatis jika ada
+            const nSekolah = localStorage.getItem('modulPIT_sekolah');
+            if(nSekolah) {
+                loadProfile();
+            } else {
+                updatePreview();
+            }
+        };
+    </script>
+</body>
+</html>
